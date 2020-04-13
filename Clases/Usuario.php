@@ -40,9 +40,9 @@ class Usuario
 		$this -> correoElectronico = $correoElectronico;
 	}
 
-	function establecerUsuario()
+	function establecerUsuario( $nombreUsuario )
 	{
-		$this -> usuario = $usuario;
+		$this -> usuario = $nombreUsuario;
 	}
 
 	function establecerContrasena( $contrasena )
