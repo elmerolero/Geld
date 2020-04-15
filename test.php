@@ -13,6 +13,5 @@
 		<input type="password" placeholder="Contraseña" name="contrasena"><br>
 		<input type="submit" value="Enviar"/>
 	</form>
-
 </body>
 </html>
