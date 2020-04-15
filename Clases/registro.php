@@ -9,12 +9,6 @@
 
 		function registrarUsuario()
 		{
-			
-	
-		}
-
-		function validarFormulario()
-		{
 			// Crea una conexión a la base de datos
 			$this -> crearConexion();
 
@@ -158,6 +152,11 @@
 				 "<p><strong>Correo electrónico: </strong>" . $correo . "</p>" .
 				 "<p><strong>Contraseña encriptada: </strong>" . $contrasena . "</p>";
 
+			if( !( $this -> registrarDatosUsuario( $nombre, $apellidos, $cumpleanios, $apodo, $correo, $contrasena ) ) ){
+				echo $this -> obtenerErrorConsulta();
+				return;
+			}
+
 			// Si llegó aquí reiniciamos estado y lo reestablecemos en exitoso como verdad
 			unset( $estado );
 			$estado[ 'exitoso' ] = true;
@@ -167,6 +166,14 @@
 
 			// Devolvemos el estado del registro.
 			echo json_encode( $estado );
+		}
+
+		// Registra al usuario
+		private function registrarDatosUsuario( $nombre, $apellidos, $fechaNacimiento, $apodo, $correo, $contrasena )
+		{
+			$consulta = "call agregarUsuario( '" . $apodo . "', '" . $nombre . "', '" . $apellidos . "', '" . $fechaNacimiento . "', '" . $correo . "', '" . $contrasena . "' )";
+			
+			return $this -> consultar( $consulta );
 		}
 
 		/* Aspectos a validar */
