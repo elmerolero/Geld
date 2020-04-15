@@ -12,71 +12,74 @@
 			// Crea una conexión a la base de datos
 			$this -> crearConexion();
 
-			
 			// ¿El nombre introducido es un nombre válido?
-			$estado = Registro::stringValido( $_POST[ 'nombre' ], 'nombre', 100 );
+			$estado = Registro::stringValido( isset( $_POST[ 'nombre' ] ) ? $_POST[ 'nombre' ] : null , 'nombre', 100 );
 			if( $estado[ 'exitoso' ] ){
 				// Lo guarda en la variable $nombre
 				$nombre = $estado[ 'nombre' ];
 				unset( $estado );
 			}
 			else{
-				// Returna el error encontrado
-				echo json_encode( $estado ); 
+				// Retorna el error encontrado
+				echo json_encode( $estado );
+				$this -> cerrarConexion(); 
 				return;
 			}
 			
 			// ¿El apellido introducido es válido?
-			$estado = Registro::stringValido( $_POST[ 'apellidos' ], 'apellido', 100 );
+			$estado = Registro::stringValido( isset( $_POST[ 'apellidos' ] ) ? $_POST[ 'apellidos' ] : null, 'apellido', 100 );
 			if( $estado[ "exitoso" ] ){
 				$apellidos = $estado[ 'apellido' ];
 				unset( $estado );
 			}
 			else{
-				// Returna el error encontrado
-				echo json_encode( $estado ); 
+				// Retorna el error encontrado
+				echo json_encode( $estado );
+				$this -> cerrarConexion();
 				return;
 			}
 
 			// Verifica que introdujo una fecha de nacimiento válida
-			$estado = Registro::fechaNacimientoValida( $_POST[ 'cumpleanios' ] );
+			$estado = Registro::fechaNacimientoValida( isset( $_POST[ 'cumpleanios' ] ) ? $_POST[ 'cumpleanios' ] : null );
 			if( $estado[ "exitoso" ] ){
 				$cumpleanios = $estado[ 'fecha' ];
 				unset( $estado );
 			}
 			else{
-				// Returna el error encontrado
+				// Retorna el error encontrado
 				echo json_encode( $estado ); 
+				$this -> cerrarConexion();
 				return;
 			}
 
 			// Validación de apodo
-			$estado = $this -> apodoValido( $_POST[ 'apodo' ] );
+			$estado = $this -> apodoValido( isset( $_POST[ 'apodo' ] ) ? $_POST[ 'apodo' ] : null );
 			if( $estado[ "exitoso" ] ){
 				$apodo = $estado[ 'apodo' ];
 				unset( $estado );
 			}
 			else{
-				// Returna el error encontrado
+				// Retorna el error encontrado
 				echo json_encode( $estado ); 
+				$this -> cerrarConexion();
 				return;
 			}
 
 			// Validación de correo electrónico
-			$estado = $this -> correoValido( $_POST[ 'correo' ] );
+			$estado = $this -> correoValido( isset( $_POST[ 'correo' ] ) ? $_POST[ 'correo' ] : null );
 			if( $estado[ 'exitoso' ] ){
 				$correo = $estado[ 'correo' ];
 				unset( $estado );
 			}
 			else{
-				// Returna el error encontrado
-				echo json_encode( $estado ); 
+				// Retorna el error encontrado
+				echo json_encode( $estado );
+				$this -> cerrarConexion();
 				return;
 			}
 
-
 			// Validación de contraseña
-			$estado = Registro::contrasenaValida( $_POST[ 'contrasena' ] );
+			$estado = Registro::contrasenaValida( isset( $_POST[ 'contrasena' ] ) ? $_POST[ 'contrasena' ] : null );
 			if( $estado[ 'exitoso' ] ){
 				$contrasena = $estado[ 'contrasena' ];
 					
@@ -85,17 +88,11 @@
 				unset( $estado );
 			}
 			else{
-				// Returna el error encontrado
-				echo json_encode( $estado ); 
+				// Retorna el error encontrado
+				echo json_encode( $estado );
+				$this -> cerrarConexion();
 				return;
 			}
-			
-			echo "<p><strong>Nombre: </strong>" . $nombre . "</p>" .
-				 "<p><strong>Apellidos: </strong>" . $apellidos . "</p>" .
-				 "<p><strong>Fecha de nacimiento: </strong>" . $cumpleanios . "</p>" .
-				 "<p><strong>Apodo: </strong>" . $apodo . "</p>" .
-				 "<p><strong>Correo electrónico: </strong>" . $correo . "</p>" .
-				 "<p><strong>Contraseña encriptada: </strong>" . $contrasena . "</p>";
 
 			if( !( $this -> registrarDatosUsuario( $nombre, $apellidos, $cumpleanios, $apodo, $correo, $contrasena ) ) ){
 				echo $this -> obtenerErrorConsulta();
@@ -106,11 +103,11 @@
 			unset( $estado );
 			$estado[ 'exitoso' ] = true;
 
-			// Cerramos la conexión con la base de datos
-			$this -> cerrarConexion();
-
 			// Devolvemos el estado del registro.
 			echo json_encode( $estado );
+
+			// Cerramos la conexión con la base de datos
+			$this -> cerrarConexion();
 		}
 
 		// Registra al usuario
@@ -226,7 +223,6 @@
 					$estado[ 'exitoso' ] = false;
 					$estado[ 'mensaje' ] = "Este apodo ya está siendo utilizado, intenta con otro.";
 					$this -> finalizarConsulta();
-					$this -> cerrarConexion();
 					return $estado;
 				}
 			}
@@ -272,7 +268,6 @@
 					$estado[ 'exitoso' ] = false;
 					$estado[ 'mensaje' ] = "Este correo electrónico ya está siendo utilizado, intenta con otro.";
 					$this -> finalizarConsulta();
-					$this -> cerrarConexion();
 					return $estado;
 				}
 			}
