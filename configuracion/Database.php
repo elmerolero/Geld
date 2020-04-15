@@ -38,7 +38,12 @@
 
 		function consultar( $consulta )
 		{
-			$this -> resultado = mysqli_query( $this -> conexion, $consulta );
+			return $this -> resultado = mysqli_query( $this -> conexion, $consulta );
+		}
+
+		function obtenerErrorConsulta()
+		{
+			return mysqli_error( $this -> conexion );
 		}
 
 		function establecerHost( $host )
