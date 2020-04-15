@@ -12,139 +12,84 @@
 			// Crea una conexión a la base de datos
 			$this -> crearConexion();
 
-			// Validación de nombre
-			if( !empty( $_POST[ 'nombre' ] ) ){
-				// Verifica que el nombre introducido sea un nombre válido
-				$estado = Registro::nombreValido( $_POST[ 'nombre' ] );
-				if( $estado[ 'exitoso' ] ){
-					$nombre = $estado[ 'nombre' ];
-					unset( $estado );
-				}
-				else{
-					// Returna el error encontrado
-					echo json_encode( $estado ); 
-					return;
-				}
+			
+			// ¿El nombre introducido es un nombre válido?
+			$estado = Registro::stringValido( $_POST[ 'nombre' ], 'nombre', 100 );
+			if( $estado[ 'exitoso' ] ){
+				// Lo guarda en la variable $nombre
+				$nombre = $estado[ 'nombre' ];
+				unset( $estado );
 			}
 			else{
-				// Solicita al usuario que introduzca un nombre
-				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "Introduce un nombre.";
-				echo json_encode( $estado );
+				// Returna el error encontrado
+				echo json_encode( $estado ); 
+				return;
+			}
+			
+			// ¿El apellido introducido es válido?
+			$estado = Registro::stringValido( $_POST[ 'apellidos' ], 'apellido', 100 );
+			if( $estado[ "exitoso" ] ){
+				$apellidos = $estado[ 'apellido' ];
+				unset( $estado );
+			}
+			else{
+				// Returna el error encontrado
+				echo json_encode( $estado ); 
 				return;
 			}
 
-			// Validación de apellidos
-			if( !empty( $_POST[ 'apellidos' ] ) ){
-				// Verifica que los apellidos introducidos sean válidos.
-				$estado = Registro::apellidosValidos( $_POST[ 'apellidos' ] );
-				if( $estado[ "exitoso" ] ){
-					$apellidos = $estado[ 'apellidos' ];
-					unset( $estado );
-				}
-				else{
-					// Returna el error encontrado
-					echo json_encode( $estado ); 
-					return;
-				}
+			// Verifica que introdujo una fecha de nacimiento válida
+			$estado = Registro::fechaNacimientoValida( $_POST[ 'cumpleanios' ] );
+			if( $estado[ "exitoso" ] ){
+				$cumpleanios = $estado[ 'fecha' ];
+				unset( $estado );
 			}
 			else{
-				// Solicita al usuario que introduzca al menos un apellido
-				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "Introduce al menos un apellido.";
-				echo json_encode( $estado );
-				return;
-			}
-
-			// Validación de fecha de nacimiento
-			if( !empty( $_POST[ 'cumpleanios' ] ) ){
-				// Verifica que introdujo una fecha de nacimiento válida
-				$estado = Registro::fechaNacimientoValida( $_POST[ 'cumpleanios' ] );
-				if( $estado[ "exitoso" ] ){
-					$cumpleanios = $estado[ 'fecha' ];
-					unset( $estado );
-				}
-				else{
-					// Returna el error encontrado
-					echo json_encode( $estado ); 
-					return;
-				}
-			}
-			else{
-				// Solicita al usuario que introduzca una fecha de nacimiento
-				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "Introduce una fecha de nacimiento.";
-				echo json_encode( $estado );
+				// Returna el error encontrado
+				echo json_encode( $estado ); 
 				return;
 			}
 
 			// Validación de apodo
-			if( !empty( $_POST[ 'apodo' ] ) ){
-				$estado = $this -> apodoValido( $_POST[ 'apodo' ] );
-				if( $estado[ "exitoso" ] ){
-					$apodo = $estado[ 'apodo' ];
-					unset( $estado );
-				}
-				else{
-					// Returna el error encontrado
-					echo json_encode( $estado ); 
-					return;
-				}
+			$estado = $this -> apodoValido( $_POST[ 'apodo' ] );
+			if( $estado[ "exitoso" ] ){
+				$apodo = $estado[ 'apodo' ];
+				unset( $estado );
 			}
 			else{
-				// Solicita al usuario que introduzca un apodo
-				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "Introduce un apodo.";
-				echo json_encode( $estado );
+				// Returna el error encontrado
+				echo json_encode( $estado ); 
 				return;
 			}
 
 			// Validación de correo electrónico
-			if( !empty( $_POST[ 'correo' ] ) ){
-				$estado = $this -> correoValido( $_POST[ 'correo' ] );
-				if( $estado[ 'exitoso' ] ){
-					$correo = $estado[ 'correo' ];
-					unset( $estado );
-				}
-				else{
-					// Returna el error encontrado
-					echo json_encode( $estado ); 
-					return;
-				}
+			$estado = $this -> correoValido( $_POST[ 'correo' ] );
+			if( $estado[ 'exitoso' ] ){
+				$correo = $estado[ 'correo' ];
+				unset( $estado );
 			}
 			else{
-				// Solicita al usuario que introduzca un correo electrónico
-				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "Introduce un correo electrónico.";
-				echo json_encode( $estado );
+				// Returna el error encontrado
+				echo json_encode( $estado ); 
 				return;
 			}
 
 
 			// Validación de contraseña
-			if( !empty( $_POST[ 'contrasena' ] ) ){
-				$estado = Registro::contrasenaValida( $_POST[ 'contrasena' ] );
-				if( $estado[ 'exitoso' ] ){
-					$contrasena = $estado[ 'contrasena' ];
+			$estado = Registro::contrasenaValida( $_POST[ 'contrasena' ] );
+			if( $estado[ 'exitoso' ] ){
+				$contrasena = $estado[ 'contrasena' ];
 					
-					// Encripta la contraseña
-					$contrasena = password_hash( $contrasena, PASSWORD_BCRYPT );
-					unset( $estado );
-				}
-				else{
-					// Returna el error encontrado
-					echo json_encode( $estado ); 
-					return;
-				}
+				// Encripta la contraseña
+				$contrasena = password_hash( $contrasena, PASSWORD_BCRYPT );
+				unset( $estado );
 			}
 			else{
-				// Indica que es necesaria una contraseña
-				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "Introduce una contrasena.";
-				echo json_encode( $estado );
+				// Returna el error encontrado
+				echo json_encode( $estado ); 
 				return;
 			}
-
+			
 			echo "<p><strong>Nombre: </strong>" . $nombre . "</p>" .
 				 "<p><strong>Apellidos: </strong>" . $apellidos . "</p>" .
 				 "<p><strong>Fecha de nacimiento: </strong>" . $cumpleanios . "</p>" .
@@ -152,10 +97,10 @@
 				 "<p><strong>Correo electrónico: </strong>" . $correo . "</p>" .
 				 "<p><strong>Contraseña encriptada: </strong>" . $contrasena . "</p>";
 
-			if( !( $this -> registrarDatosUsuario( $nombre, $apellidos, $cumpleanios, $apodo, $correo, $contrasena ) ) ){
+			/*if( !( $this -> registrarDatosUsuario( $nombre, $apellidos, $cumpleanios, $apodo, $correo, $contrasena ) ) ){
 				echo $this -> obtenerErrorConsulta();
 				return;
-			}
+			}*/
 
 			// Si llegó aquí reiniciamos estado y lo reestablecemos en exitoso como verdad
 			unset( $estado );
@@ -180,56 +125,39 @@
 		/* - Solo puede contener letras del alfabeto (ni caracteres expeciales o números). 
 		   - El tamaño máximo del String debe ser 100 caracteres.
 		*/
-		public static function nombreValido( $nombre )
+		// String es el string que se desea validar
+		// Objeto es el objeto que se desea mostrar 
+		// Length es el tamaño maximo que puede medir el string a validar
+		public static function stringValido( $string, $objeto, $length )
 		{
 			// Se asume que la validación será exitosa
 			$estado[ 'exitoso' ] = true;
 
-			// Filtro de seguridad
-			$nombre = Registro::filtrarString( $nombre );
-
-			// Se asegura que el largo del nombre sea menor a 100 caracteres
-			if( strlen( $nombre ) > 100 ){
+			// ¿Si introdujo un nombre?
+			if( empty( $string ) ){
 				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "El nombre excede el tamaño máximo (cien letras).";
+				$estado[ 'mensaje' ] = "Introduce " . $objeto . ".";
+				return $estado;
+			}
+
+			// Filtro de seguridad
+			$string = Registro::filtrarString( $string );
+
+			// Se asegura que el largo del nombre sea menor a $length caracteres
+			if( strlen( $string ) > $length ){
+				$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "El " . $objeto . " excede el tamaño máximo (" . $length . " letras).";
 				return $estado;
 			}
 
 			// Verifica que se introduzca un nombre sin caracteres especiales
-			if( preg_match( "/^[A-Z][a-zA-Z -]+$/", $nombre ) === 0 ){
+			if( preg_match( "/^[A-Z][a-zA-Z -]+$/", $string ) === 0 ){
 				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "Introduzca un nombre válido.";
+				$estado[ 'mensaje' ] = "Introduzca un " . $objeto . " válido.";
 				return $estado;
 			}
 
-			$estado[ 'nombre' ] = $nombre;
-
-			return $estado;
-		}
-
-		// Devuelve verdadero su los apellidos introducidos son válidos
-		public static function apellidosValidos( $apellidos )
-		{
-			$estado['exitoso'] = true;
-
-			// Filtro de seguridad
-			$apellidos = Registro::filtrarString( $apellidos );
-
-			// Se asegura que el largo del nombre sea menor a 100 caracteres
-			if( strlen( $apellidos ) > 100 ){
-				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "Los apellidos no deberían superar las cien letras.";
-				return $estado;
-			}
-
-			// Verifica que se introduzca un nombre sin caracteres especiales
-			if( preg_match( "/^[A-Z][a-zA-Z -]+$/", $apellidos ) === 0 ){
-				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "Introduzca apellidos válidos.";
-				return $estado;
-			}
-
-			$estado['apellidos'] = $apellidos;
+			$estado[ $objeto ] = $string;
 
 			return $estado;
 		}
@@ -238,6 +166,13 @@
 		public static function fechaNacimientoValida( $fecha )
 		{
 			$estado['exitoso'] = true;
+
+			if( empty( $fecha ) ){
+				// Solicita al usuario que introduzca una fecha de nacimiento
+				$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "Introduce una fecha de nacimiento.";
+				return $estado;
+			}
 
 			// Filtro de seguridad
 			$fecha = Registro::filtrarString( $fecha );
@@ -257,6 +192,14 @@
 		public function apodoValido( $apodo )
 		{
 			$estado['exitoso'] = true;
+
+			// ¿No se introdujo nada?
+			if( empty( $apodo ) ){
+				// Solicita al usuario que introduzca un apodo
+				$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "Introduce un apodo.";
+				return $estado;
+			}
 
 			// Filtro de seguridad
 			$apodo = Registro::filtrarString( $apodo );
@@ -296,6 +239,13 @@
 		public function correoValido( $correo )
 		{
 			$estado[ 'exitoso' ] = true;
+
+			if( empty( $correo ) ){
+				// Solicita al usuario que introduzca un correo electrónico
+				$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "Introduce un correo electrónico.";
+				return $estado;
+			}
 
 			// Filtro de seguridad
 			$correo = Registro::filtrarString( $correo );
@@ -338,6 +288,14 @@
 		public static function contrasenaValida( $contrasena )
 		{
 			$estado['exitoso'] = true;
+
+			// ¿Si se introdujo una contraseña?
+			if( empty( $contrasena ) ){
+				// Indica que es necesaria una contraseña
+				$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "Introduce una contrasena.";
+				return $estado;
+			}
 
 			$contrasena = Registro::filtrarString( $contrasena );
 
