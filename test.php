@@ -4,7 +4,7 @@
 	<title></title>
 </head>
 <body>
-	<form action="/Geld/registro/validarFormulario" method="POST">
+	<form action="/Geld/registro/registrarUsuario" method="POST">
 		<input type="text" placeholder="Nombre" name="nombre"><br>
 		<input type="text" placeholder="Apellidos" name="apellidos"><br>
 		<label for="fecha-nacimiento">Fecha de nacimiento</label><br><input type="date" name="cumpleanios"><br><br>
