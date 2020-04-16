@@ -7,8 +7,30 @@
 			parent::__construct();
 		}
 
-		function registrarUsuario()
+		function sitio()
 		{
+			header('Location: /vistas/registro/');
+		}
+
+		function sitioAvatar()
+		{
+			$estado = Sesion::sesionIniciada();
+			if( !$estado[ 'sesion' ] ){
+				header('Location: /inicio/');
+				return;
+			}
+
+			require_once 'vistas/avatar/index.php';
+		}
+
+		function registrarUsuario()
+		{	// Verifica que no exista una sesión iniciada
+			$estado = Sesion::sesionIniciada();
+			if( $estado[ 'sesion' ] ){
+				echo json_encode( $estado );
+				return;
+			}
+
 			// Crea una conexión a la base de datos
 			$this -> crearConexion();
 
@@ -40,7 +62,7 @@
 			}
 
 			// Verifica que introdujo una fecha de nacimiento válida
-			$estado = Registro::fechaNacimientoValida( isset( $_POST[ 'cumpleanios' ] ) ? $_POST[ 'cumpleanios' ] : null );
+			$estado = Registro::fechaNacimientoValida( isset( $_POST[ 'nacimiento' ] ) ? $_POST[ 'nacimiento' ] : null );
 			if( $estado[ "exitoso" ] ){
 				$cumpleanios = $estado[ 'fecha' ];
 				unset( $estado );
@@ -53,9 +75,9 @@
 			}
 
 			// Validación de apodo
-			$estado = $this -> apodoValido( isset( $_POST[ 'apodo' ] ) ? $_POST[ 'apodo' ] : null );
+			$estado = $this -> usuarioValido( isset( $_POST[ 'usuario' ] ) ? $_POST[ 'usuario' ] : null );
 			if( $estado[ "exitoso" ] ){
-				$apodo = $estado[ 'apodo' ];
+				$usuario = $estado[ 'usuario' ];
 				unset( $estado );
 			}
 			else{
@@ -82,6 +104,23 @@
 			$estado = Registro::contrasenaValida( isset( $_POST[ 'contrasena' ] ) ? $_POST[ 'contrasena' ] : null );
 			if( $estado[ 'exitoso' ] ){
 				$contrasena = $estado[ 'contrasena' ];
+				unset( $estado );
+
+				// ¿No se introdujo la confirmación de contraseña?
+				if( empty( $_POST['ccontrasena'] ) ){
+					$estado[ 'exitoso' ] = false;
+					$estado[ 'mensaje' ] = "Confirma tu contraseña.";
+					echo json_encode( $estado );
+					return; 
+				}
+
+				// Se comparan las contraseñas
+				if( strcmp( $contrasena, $_POST[ 'ccontrasena' ] ) != 0 ){
+					$estado[ 'exitoso' ] = false;
+					$estado[ 'mensaje' ] = "Las contraseñas no coinciden. Inténtalo de nuevo.";
+					echo json_encode( $estado );
+					return; 
+				}
 					
 				// Encripta la contraseña
 				$contrasena = password_hash( $contrasena, PASSWORD_BCRYPT );
@@ -93,29 +132,109 @@
 				$this -> cerrarConexion();
 				return;
 			}
-
-			if( !( $this -> registrarDatosUsuario( $nombre, $apellidos, $cumpleanios, $apodo, $correo, $contrasena ) ) ){
+			
+			if( !( $this -> registrarDatosUsuario( $nombre, $apellidos, $cumpleanios, $usuario, $correo, $contrasena ) ) ){
 				echo $this -> obtenerErrorConsulta();
 				return;
-			}
+			} 
+
+			// Se inicia una nueva sessión y se guarda el nombre de usuario
+			Sesion::establecerSesion( $usuario ); 
 
 			// Si llegó aquí reiniciamos estado y lo reestablecemos en exitoso como verdad
 			unset( $estado );
 			$estado[ 'exitoso' ] = true;
 
 			// Devolvemos el estado del registro.
-			echo json_encode( $estado );
+			echo json_encode( $estado ); 
 
 			// Cerramos la conexión con la base de datos
 			$this -> cerrarConexion();
 		}
 
-		// Registra al usuario
-		private function registrarDatosUsuario( $nombre, $apellidos, $fechaNacimiento, $apodo, $correo, $contrasena )
+		function agregarAvatar()
 		{
-			$consulta = "call agregarUsuario( '" . $apodo . "', '" . $nombre . "', '" . $apellidos . "', '" . $fechaNacimiento . "', '" . $correo . "', '" . $contrasena . "' )";
+			// Para subir un avatar es necesario que exista una sesión iniciada
+			$estado = Sesion::sesionIniciada();
+			if( !$estado[ 'sesion' ] ){
+				echo json_encode( $estado );
+				return;
+			}else{
+				unset( $estado );
+			}
+
+			echo "<p>Agregar avatar.</p>";
+
+			if( !isset( $_FILES[ 'avatar' ] ) )
+			{
+				$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "No se subió ningun archivo.";
+				echo json_encode( $estado );
+				return;
+			}
+
+			$permitido = array('gif', 'png', 'jpg');
+			$filename = $_FILES[ 'avatar' ][ 'name' ];
+			$extension = pathinfo($filename, PATHINFO_EXTENSION);
+			if ( !in_array( $extension, $permitido ) ) {
+	    		$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "Archivo de imagen no válido.";
+				echo json_encode( $estado );
+				return;
+			}
+
+			// Obtiene la ruta temporal del archivo
+			$nombre = $_FILES[ 'avatar' ][ 'tmp_name' ];
+
+			// Obtiene el nombre del usuario que desea subir el Avatar
+			$usuario = $_SESSION[ 'usuario' ];
+
+			// Contruye el directorio donde se guardara el Avatar del usuario
+			$directorio = "usuarios/" . $usuario . "/avatar/";
+
+			// Si el directorio no existe...
+			if( !file_exists( $directorio ) ){
+				mkdir( $directorio, 0755, true ); 
+			}
+
+			// Mueve el archivo
+			$directorio = $directorio . $usuario . "." . $extension;
 			
-			return $this -> consultar( $consulta );
+			// Mueve el archivo al directorio especificado
+			if( !move_uploaded_file( $nombre, $directorio ) ){
+				$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "Archivo de imagen no válido.";
+				echo json_encode( $estado );
+				return;
+			}
+
+			// Conecta con la base de datos
+			$this -> crearConexion();
+
+			// Realiza la consulta
+			$consulta = "call agregarAvatar( '" . $usuario . "', '" . $directorio . "' )";
+			if( !( $this -> consultar( $consulta ) ) ){
+				$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "Error al registrar el avatar, solicitar a soporte.";
+				echo json_encode( $estado );
+				return;
+			}
+
+			$estado[ 'exitoso' ] = true;
+			echo json_encode( $estado );
+		}
+
+		// Registra al usuario
+		private function registrarDatosUsuario( $nombre, $apellidos, $fechaNacimiento, $usuario, $correo, $contrasena )
+		{
+			$consulta = "INSERT INTO usuarios VALUES ( '$usuario', '$nombre', '$apellidos', '$fechaNacimiento', null, 0, 0 )";
+			
+			if( $this -> consultar( $consulta ) ){
+				$consulta = "INSERT INTO datos_sesion VALUES ( '$usuario', '$correo', '$contrasena' )";
+				return $this -> consultar( $consulta );
+			}
+
+			return false;
 		}
 
 		/* Aspectos a validar */
@@ -186,48 +305,48 @@
 			return $estado;
 		}
 
-		public function apodoValido( $apodo )
+		public function usuarioValido( $usuario )
 		{
 			$estado['exitoso'] = true;
 
 			// ¿No se introdujo nada?
-			if( empty( $apodo ) ){
+			if( empty( $usuario ) ){
 				// Solicita al usuario que introduzca un apodo
 				$estado[ 'exitoso' ] = false;
-				$estado[ 'mensaje' ] = "Introduce un apodo.";
+				$estado[ 'mensaje' ] = "Introduce un nombre de usuario.";
 				return $estado;
 			}
 
 			// Filtro de seguridad
-			$apodo = Registro::filtrarString( $apodo );
+			$usuario = Registro::filtrarString( $usuario );
 
 			// Se asegura que el largo del apodo sea menor a 20 caracteres
-			if( strlen( $apodo ) > 20 ){
+			if( strlen( $usuario ) > 20 ){
 				$estado[ 'exitoso' ] = false;
 				$estado[ 'mensaje' ] = "El apodo es muy largo (máximo veinte letras).";
 				return $estado;
 			}
 
 			// ¿Se introdujo un apodo válido?
-			if( preg_match( "/^[0-9a-zA-Z_]{5,}$/", $apodo ) === 0 ){
+			if( preg_match( "/^[0-9a-zA-Z_]{5,}$/", $usuario ) === 0 ){
 				$estado[ 'exitoso' ] = false;
 				$estado[ 'mensaje' ] = "El apodo debe tener almenos 6 letras y solo puede contener letras, dígitos o guión bajo.";
 				return $estado;
 			}
 
-			// ¿No hay nadie más que utilice ese apodo?
-			$consulta = "select nombreUsuarioUtilizado( '" . $apodo . "' ) as esUtilizado";
+			// ¿No hay nadie más que utilice ese usuario?
+			$consulta = "select * from usuarios where nombre_usuario = '" . $usuario . "'";
 			$this -> consultar( $consulta );
 			if( $this -> hayResultados() ){
-				if( ($this -> obtenerRenglon())[ 'esUtilizado' ] ){
-					$estado[ 'exitoso' ] = false;
-					$estado[ 'mensaje' ] = "Este apodo ya está siendo utilizado, intenta con otro.";
-					$this -> finalizarConsulta();
-					return $estado;
-				}
+				$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "Este apodo ya está siendo utilizado, intenta con otro.";
+				$this -> finalizarConsulta();
+				return $estado;
+			}else{
+				echo $this -> obtenerErrorConsulta();
 			}
 
-			$estado['apodo'] = $apodo;
+			$estado['usuario'] = $usuario;
 
 			return $estado;
 		}
@@ -261,18 +380,13 @@
 			}
 
 			// ¿No hay nadie más que utilice ese correo electronico?
-			$consulta = "select correoElectronicoUtilizado( '" . $correo . "' ) as esUtilizado";
+			$consulta = "select * from datos_sesion where correo_electronico = '" . $correo . "'";;
 			$this -> consultar( $consulta );
 			if( $this -> hayResultados() ){
-				if( ($this -> obtenerRenglon())[ 'esUtilizado' ] ){
-					$estado[ 'exitoso' ] = false;
-					$estado[ 'mensaje' ] = "Este correo electrónico ya está siendo utilizado, intenta con otro.";
-					$this -> finalizarConsulta();
-					return $estado;
-				}
-			}
-			else{
-				echo "Revisar consulta, no arrojó resultados.";
+				$estado[ 'exitoso' ] = false;
+				$estado[ 'mensaje' ] = "Este correo electrónico ya está siendo utilizado, intenta con otro.";
+				$this -> finalizarConsulta();
+				return $estado;
 			}
 
 			$estado['correo'] = $correo;
@@ -321,4 +435,5 @@
 
 			return $string;
 		}
+
 	}
