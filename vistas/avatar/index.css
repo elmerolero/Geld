@@ -1,0 +1,27 @@
+.seccion{
+	background: white;
+	margin: 4vh auto auto 4vh;
+	width: 95%;
+	height: 90%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.archivo::-webkit-file-upload-button {
+  visibility: hidden;
+}
+
+input{
+	margin: auto 3vh auto 3vh;
+	height: 3em;
+	width: 90%;
+	border: 0.1vh rgb(100, 100, 100) solid;
+	border-radius: 0.4vh;
+	padding:  1vh;
+}
+
+::placeholder{
+	font-size: 1em;
+	margin-left: 10px;
+}

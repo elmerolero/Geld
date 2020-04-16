@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- Meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Título -->
+	<title>Registro - Geld</title>
+
+	<!-- Estilos -->
+	<link rel="stylesheet" type="text/css" href="/recursos/estilos/style.css">
+	<link rel="stylesheet" type="text/css" href="/vistas/registro/index.css">
+</head>
+<body>
+	<div class="encabezado">
+		<img src="/recursos/imagenes/logo.png" style="height: 7vh; margin-left: 20px;" >
+		<div class="encabezado-opciones">
+			<a class="opcion" href="/inicio/">Pagina principal</a>
+			<a class="opcion" href="#">Inicia Sesión</a>
+		</div>
+	</div>
+	<div class="contenido">
+		<div style="width: 90%; margin: auto; display: flex; flex-direction: row; justify-content: space-between;" >
+			<form class="formulario" id="formulario-registro" action="/registro/registrarUsuario" method="POST">
+				<div id="estado" style="width: 100%; margin: 0; padding: 0.5vh; background: white; display: none; text-align: center;">Hola</div><br>
+				<h3 style="color: white; font-size: 3em;">Registro</h3><br>
+				<input type="text" placeholder="Nombre" name="nombre" id="nombre"><br>
+				<input type="text" placeholder="Apellidos" name="apellidos" id="apellidos"><br>
+				<div style = "width: 90%; display: flex; justify-content: space-between; align-items: center;">
+					<label for="fecha-nacimiento" id="etiqueta" style="color: rgb(50, 50, 50); font-weight: bold;">Fecha de nacimiento</label>
+					<input type="date" name="nacimiento" id="nacimiento" >
+				</div><br>
+				<input type="text" placeholder="Nombre de usuario" name="usuario" id="usuario" ><br>
+				<input type="email" placeholder="Correo Electrónico" name="correo" id="correo"><br>
+				<input type="password" placeholder="Contraseña" name="contrasena" id="contrasena"><br>
+				<input type="password" placeholder="Confirmar contraseña" name="ccontrasena" id="ccontrasena"><br>
+				<input type="submit" id="boton" value="Registrarse"/><br>
+			</form>
+			<div style="width: 50%; height: 100%; margin: 8vh; padding: 0; background: rgb( 163, 95, 151 ); color: rgb(230, 230, 230 );">
+				<img src="/vistas/registro/img/familia.jpg" style="margin: 0; padding: 0; width: 100%;">
+				<div style="width: 100%;  height: 100%; padding: 3vh; margin: 0;">
+					<h2>Aquí comienza una nueva etapa</h2><br>
+					<p style="letter-spacing: 0.08em;">
+						Podría parecer un comienzo simple, pero tener un fondo, una meta o un propósito
+						son cosas que siempre busca algo mejor para el que decide intentar cultivar el hábito del ahorro.
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="pie">
+		<h4>Geld - Aplicación para el fomento de la cultura del ahorro en México.</h4>
+	</div>
+
+	<!-- Scripts -->
+	<script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+	<script type="text/javascript" src="script.js"></script>
+</body>
+</html>

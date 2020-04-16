@@ -1,0 +1,43 @@
+.formulario{
+	padding: 0;
+	width: 40%;
+	height: 60%;
+	margin: 8vh;
+	background: rgb( 82, 191, 186 );
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-image: url( 'img/money.png' );
+	background-repeat: no-repeat;
+	background-size: 70% 50%;
+	background-position: center;
+}
+
+#etiqueta{
+	width: 100%;
+	flex: 1 1 auto;
+}
+
+#boton{
+	width: 40%;
+	height: 40px;
+	border-radius: 1vh;
+	color: white;
+	background: rgb( 255, 151, 97 );
+	font-size: 2vh;
+	border: 0;
+}
+
+input{
+	margin: auto 3vh auto 3vh;
+	height: 3em;
+	width: 90%;
+	border: 0.1vh rgb(100, 100, 100) solid;
+	border-radius: 0.4vh;
+	padding:  1vh;
+}
+
+::placeholder{
+	font-size: 1em;
+	margin-left: 10px;
+}
