@@ -26,7 +26,7 @@
 				$this -> cargarClase( $claseInvocada );
 				$this -> ejecutarMetodo( $metodoInvocado );
 			}else{
-				$this -> cargarClase( "Main" );
+				$this -> cargarClase( "inicio" );
 			}
 		}
 
@@ -52,7 +52,7 @@
 		private function cargarClase( $claseAInvocar )
 		{
 			// Genera la URL del archivo donde se encuentra la clase controladora
-			$ubicacionArchivoClase = 'clases/'. $claseAInvocar . '.php';
+			$ubicacionArchivoClase = 'clases/' . $claseAInvocar . '.php';
 
 			// ¿El archivo no existe?
 			if( !file_exists( $ubicacionArchivoClase ) ){
